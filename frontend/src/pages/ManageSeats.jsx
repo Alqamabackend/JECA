@@ -10,6 +10,14 @@ export default function ManageSeats() {
   const [category, setCategory] = useState("GEN");
   const [selectedCollege, setSelectedCollege] = useState("");
 
+
+  const handleDelete = async (id) => {
+  if (window.confirm("Are you sure you want to delete?")) {
+    await api.delete(`/seat/${id}`);
+    fetchData();
+  }
+};
+
   const fetchData = async () => {
     const collegeRes = await api.get("/college/");
     const seatRes = await api.get("/seat/");
@@ -23,6 +31,16 @@ export default function ManageSeats() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+     if (!selectedCollege || !branch || !totalSeats) {
+    alert("All fields are required");
+    return;
+  }
+
+  if (Number(totalSeats) <= 0) {
+    alert("Seats must be greater than 0");
+    return;
+  }
 
     await api.post("/seat/create", {
       college: selectedCollege,
@@ -105,6 +123,7 @@ export default function ManageSeats() {
               <th className="p-3 text-left">Category</th>
               <th className="p-3 text-left">Total</th>
               <th className="p-3 text-left">Available</th>
+              <th className="p-3 text-left">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -115,6 +134,14 @@ export default function ManageSeats() {
                 <td className="p-3">{s.category}</td>
                 <td className="p-3">{s.totalSeats}</td>
                 <td className="p-3">{s.availableSeats}</td>
+                <td className="p-3">
+                  <button
+                    onClick={() => handleDelete(s._id)}
+                    className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
